@@ -27,7 +27,7 @@ const LOGIN_SERVER_ACTION_PATHS: KeyedDict<LoginServerAction, LoginServerAction>
 interface ILoginResponse {
 	actionsuccess: boolean;
 	assertion: string;
-	curuser?: {loggedin: boolean, username: string, userid: string};
+	curuser?: { loggedin: boolean, username: string, userid: string };
 }
 
 interface IUpkeepResponse {
@@ -58,7 +58,7 @@ let closeListener: ((event: ws.CloseEvent) => void) | null;
 let pongListener: (() => void) | null;
 
 export class Websocket {
-    defaultMessageRoom: string;
+	defaultMessageRoom: string;
 	serverAddress: string;
 	onConnect: () => void;
 	onFailedPing: () => void;
@@ -73,7 +73,7 @@ export class Websocket {
 	private connectionAttemptTime: number = Config.connectionAttemptTime || 60 * 1000;
 	private connectionTimeout: NodeJS.Timeout | undefined = undefined;
 	private firstFormatsList: boolean = true;
-	private incomingMessageQueue: {event: ws.MessageEvent, timestamp: number}[] = [];
+	private incomingMessageQueue: { event: ws.MessageEvent, timestamp: number }[] = [];
 	private lastMeasuredMessage: IOutgoingMessage | null = null;
 	private lastSendTimeoutAfterMeasure: number = 0;
 	private lastOutgoingMessage: IOutgoingMessage | null = null;
@@ -100,7 +100,7 @@ export class Websocket {
 
 	constructor(options: IWebsocketOptions) {
 		this.serverAddress = options.serverAddress;
-        this.defaultMessageRoom = options.defaultMessageRoom;
+		this.defaultMessageRoom = options.defaultMessageRoom;
 		this.onConnect = options.onConnect;
 		this.onFailedPing = options.onFailedPing;
 		this.onIncomingMessage = options.onIncomingMessage;
@@ -255,7 +255,7 @@ export class Websocket {
 		return this.sendThrottle;
 	}
 
-    reconnect(prepared?: boolean): void {
+	reconnect(prepared?: boolean): void {
 		if (!prepared) {
 			Rooms.removeAll();
 			Users.removeAll();
@@ -271,11 +271,11 @@ export class Websocket {
 		this.connect();
 	}
 
-    afterLogin(): void {
-        if (this.loginTimeout) clearTimeout(this.loginTimeout);
-    }
+	afterLogin(): void {
+		if (this.loginTimeout) clearTimeout(this.loginTimeout);
+	}
 
-    clearLastOutgoingMessage(responseTime?: number): void {
+	clearLastOutgoingMessage(responseTime?: number): void {
 		if (this.lastOutgoingMessage) {
 			if (this.lastOutgoingMessage.measure && this.lastOutgoingMessage.sentTime && responseTime) {
 				const measurement = responseTime - this.lastOutgoingMessage.sentTime;
@@ -313,31 +313,31 @@ export class Websocket {
 		}
 	}
 
-    onMessageThrottle(): void {
-        Tools.errorLog("Typing too quickly;\nBase throttle: " + this.sendThrottle + "ms\nQueued outgoing messages: " +
-            this.outgoingMessageQueue.length +
-            "\nOutgoing message measurements: [" + this.outgoingMessageMeasurementsInfo.join(", ") + "]" +
-            (this.lastOutgoingMessage && this.lastOutgoingMessage.sentTime ?
-            "\n\nMessage sent at: " + new Date(this.lastOutgoingMessage.sentTime).toTimeString() + "; " +
-            "Processing time last measured at: " + new Date(this.lastProcessingTimeCheck).toTimeString() + "; " +
-            "Message: " + JSON.stringify(this.lastOutgoingMessage) : ""));
-        this.startSendTimeout(this.chatQueueSendThrottle);
-    }
+	onMessageThrottle(): void {
+		Tools.errorLog("Typing too quickly;\nBase throttle: " + this.sendThrottle + "ms\nQueued outgoing messages: " +
+			this.outgoingMessageQueue.length +
+			"\nOutgoing message measurements: [" + this.outgoingMessageMeasurementsInfo.join(", ") + "]" +
+			(this.lastOutgoingMessage && this.lastOutgoingMessage.sentTime ?
+				"\n\nMessage sent at: " + new Date(this.lastOutgoingMessage.sentTime).toTimeString() + "; " +
+				"Processing time last measured at: " + new Date(this.lastProcessingTimeCheck).toTimeString() + "; " +
+				"Message: " + JSON.stringify(this.lastOutgoingMessage) : ""));
+		this.startSendTimeout(this.chatQueueSendThrottle);
+	}
 
-    pauseOutgoingMessages(): void {
-        this.pausedOutgoingMessages = true;
-    }
+	pauseOutgoingMessages(): void {
+		this.pausedOutgoingMessages = true;
+	}
 
-    pauseIncomingMessages(): void {
-        this.pausedIncomingMessages = true;
-    }
+	pauseIncomingMessages(): void {
+		this.pausedIncomingMessages = true;
+	}
 
 	beforeReload(): void {
 		this.pauseIncomingMessages();
 		this.reloadInProgress = true;
 	}
 
-    /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+	/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 	onReload(previous: Websocket): void {
 		if (previous.challstrTimeout) clearTimeout(previous.challstrTimeout);
 		if (previous.serverPingTimeout) clearTimeout(previous.serverPingTimeout);
@@ -405,10 +405,10 @@ export class Websocket {
 		this.setSendThrottle(TRUSTED_MESSAGE_THROTTLE);
 	}
 
-    connect(): void {
+	connect(): void {
 		const httpsOptions = {
 			hostname: Tools.mainServer,
-			path: '/crossdomain.php?' + querystring.stringify({host: this.serverAddress, path: ''}),
+			path: '/crossdomain.php?' + querystring.stringify({ host: this.serverAddress, path: '' }),
 			method: 'GET',
 			headers: {
 				"Cache-Control": "no-cache",
@@ -443,7 +443,7 @@ export class Websocket {
 						if (config.host === 'showdown') {
 							address = 'wss://' + MAIN_HOST + ':' + (config.port || 443) + '/showdown/websocket';
 						} else {
-							address = 'ws://' + config.host + ':' + (config.port || 8000) + '/showdown/websocket';
+							address = 'ws://' + config.host + ':' + 8080 + '/showdown/websocket';
 						}
 
 						const wsOptions: ws.ClientOptions = {
@@ -472,7 +472,7 @@ export class Websocket {
 		});
 	}
 
-    /**Removes all webSocket listeners and clears sendTimeout */
+	/**Removes all webSocket listeners and clears sendTimeout */
 	private terminate(): void {
 		this.clearConnectionTimeouts();
 		this.removeClientListeners();
@@ -619,7 +619,7 @@ export class Websocket {
 		if (!event.data || typeof event.data !== 'string') return;
 
 		if (this.pausedIncomingMessages) {
-			this.incomingMessageQueue.push({event, timestamp: now});
+			this.incomingMessageQueue.push({ event, timestamp: now });
 			return;
 		}
 
@@ -680,10 +680,10 @@ export class Websocket {
 		}
 	}
 
-    private parseMessage(room: Room, incomingMessage: string, now: number): void {
-        const parsedMessage = Tools.parseIncomingMessage(incomingMessage);
-        if (parsedMessage.type === 'challstr') {
-            if (this.challstrTimeout) clearTimeout(this.challstrTimeout);
+	private parseMessage(room: Room, incomingMessage: string, now: number): void {
+		const parsedMessage = Tools.parseIncomingMessage(incomingMessage);
+		if (parsedMessage.type === 'challstr') {
+			if (this.challstrTimeout) clearTimeout(this.challstrTimeout);
 
 			this.challstr = parsedMessage.whole;
 
@@ -696,7 +696,7 @@ export class Websocket {
 
 				this.checkLoginSession();
 			}
-        } else if (parsedMessage.type === 'formats') {
+		} else if (parsedMessage.type === 'formats') {
 			if (this.firstFormatsList) {
 				this.firstFormatsList = false;
 				return;
@@ -705,9 +705,9 @@ export class Websocket {
 			Tools.updatePokemonShowdown(this.reFetchClientData);
 			if (this.reFetchClientData) this.reFetchClientData = false;
 		} else {
-            this.onIncomingMessage(room, parsedMessage, now);
-        }
-    }
+			this.onIncomingMessage(room, parsedMessage, now);
+		}
+	}
 
 	private clearSendTimeout(): void {
 		if (this.sendTimeout) {
@@ -739,7 +739,7 @@ export class Websocket {
 						"\nLast measured send timeout: " + this.lastSendTimeoutAfterMeasure +
 						"\nOutgoing message measurements: [" + this.outgoingMessageMeasurementsInfo.join(", ") + "]" +
 						(this.lastMeasuredMessage ? "\n\nLast measured message (" + this.lastProcessingTimeCheck + "): " +
-						JSON.stringify(this.lastMeasuredMessage) : ""));
+							JSON.stringify(this.lastMeasuredMessage) : ""));
 				}
 				this.lastOutgoingMessage = null;
 
@@ -796,7 +796,7 @@ export class Websocket {
 			method: 'POST',
 		};
 
-		const postData =  querystring.stringify({
+		const postData = querystring.stringify({
 			'challstr': this.challstr,
 		});
 
@@ -924,7 +924,7 @@ export class Websocket {
 							const semiColonIndex = value.indexOf(';');
 							if (semiColonIndex !== -1) value = value.substr(0, semiColonIndex);
 
-							Storage.getGlobalDatabase().loginSessionCookie = {cookie: value, userid: Users.self.id};
+							Storage.getGlobalDatabase().loginSessionCookie = { cookie: value, userid: Users.self.id };
 							newLoginSessionCookie = true;
 						}
 					}
