@@ -340,7 +340,7 @@ export class Dex {
 			const dexPath = path.join(Tools.pokemonShowdownFolder, "dist", "sim", "dex.js");
 			const teamValidatorPath = path.join(Tools.pokemonShowdownFolder, "dist", "sim", "team-validator.js");
 			const tagsPath = path.join(Tools.pokemonShowdownFolder, "dist", "data", "tags.js");
-			const setsJsonPath = path.join(Tools.pokemonShowdownFolder, "dist", "data", "random-sets.json");
+			const setsJsonPath = path.join(Tools.pokemonShowdownFolder, "dist", "data", "random-battles", "gen9", "sets.json");
 
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
 			this.pokemonShowdownDexModule = require(dexPath) as IPokemonShowdownDexModule;
@@ -354,7 +354,12 @@ export class Dex {
 			this.pokemonShowdownTagsModule = require(tagsPath) as IPokemonShowdownTagsModule;
 			this.pokemonShowdownTags = this.pokemonShowdownTagsModule.Tags;
 
-			this.randomBattleSetData = JSON.parse(fs.readFileSync(setsJsonPath).toString()) as Dict<IRandomBattleSetData>;
+			try {
+				this.randomBattleSetData = JSON.parse(fs.readFileSync(setsJsonPath).toString()) as Dict<IRandomBattleSetData>;
+			} catch (e) {
+				Tools.logException(e as Error, "Error loading Random Battle sets");
+				this.randomBattleSetData = {};
+			}
 		} else {
 			this.pokemonShowdownDexModule = this.dexes.base.pokemonShowdownDexModule;
 			this.pokemonShowdownDex = this.dexes.base.pokemonShowdownDex.mod(mod);
@@ -1716,7 +1721,7 @@ export class Dex {
 				const officialLink = format[id + '-official'] as IParsedSmogonLink | undefined;
 				if (!officialLink) continue;
 
-				const storedLink = Tools.parseSmogonLink(format[id]!);
+				const storedLink = Tools.parseSmogonLink(format[id]);
 				if (!storedLink || storedLink.dexPage) continue;
 
 				if (officialLink.dexPage) {
@@ -2219,28 +2224,28 @@ export class Dex {
 				if (abilities.length === removedBans.length) {
 					onlySuffix = true;
 					addedBans.splice(addedBans.indexOf(tagNames.allabilities), 1);
-					suffixRules.push("Only " + Tools.joinList(abilities.map(x => x!.name)));
+					suffixRules.push("Only " + Tools.joinList(abilities.map(x => x.name)));
 				}
 			} else if (addedBans.includes(tagNames.allitems) && !addedBans.map(x => this.getItem(x)).filter(x => !!x).length) {
 				const items = format.separatedCustomRules.removedbans.map(x => this.getItem(x)).filter(x => !!x);
 				if (items.length === removedBans.length) {
 					onlySuffix = true;
 					addedBans.splice(addedBans.indexOf(tagNames.allitems), 1);
-					suffixRules.push("Only " + Tools.joinList(items.map(x => x!.name)));
+					suffixRules.push("Only " + Tools.joinList(items.map(x => x.name)));
 				}
 			} else if (addedBans.includes(tagNames.allmoves) && !addedBans.map(x => this.getMove(x)).filter(x => !!x).length) {
 				const moves = format.separatedCustomRules.removedbans.map(x => this.getMove(x)).filter(x => !!x);
 				if (moves.length === removedBans.length) {
 					onlySuffix = true;
 					addedBans.splice(addedBans.indexOf(tagNames.allmoves), 1);
-					suffixRules.push("Only " + Tools.joinList(moves.map(x => x!.name)));
+					suffixRules.push("Only " + Tools.joinList(moves.map(x => x.name)));
 				}
 			} else if (addedBans.includes(tagNames.allpokemon) && !addedBans.map(x => this.getPokemon(x)).filter(x => !!x).length) {
 				const pokemon = format.separatedCustomRules.removedbans.map(x => this.getPokemon(x)).filter(x => !!x);
 				if (pokemon.length === removedBans.length) {
 					onlySuffix = true;
 					addedBans.splice(addedBans.indexOf(tagNames.allpokemon), 1);
-					suffixRules.push("Only " + Tools.joinList(pokemon.map(x => x!.name)));
+					suffixRules.push("Only " + Tools.joinList(pokemon.map(x => x.name)));
 				}
 			}
 		}
